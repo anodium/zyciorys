@@ -8,31 +8,27 @@ FIXME: Write a paragraph about the library/project and highlight its goals.
 
 ## Setup
 
-Most of the following scripts require [rlwrap](http://utopia.knoware.nl/~hlub/uck/rlwrap/) (on OS X installable via brew).
+### Development mode
+To start the Figwheel compiler, navigate to the project folder and run the following command in the terminal:
 
-Build your project once in dev mode with the following script and then open `index.html` in your browser.
+```
+lein figwheel
+```
 
-    ./scripts/build
+Figwheel will automatically push cljs changes to the browser.
+Once Figwheel starts up, you should be able to open the `public/index.html` page in the browser.
 
-To auto build your project in dev mode:
+### REPL
 
-    ./scripts/watch
+The project is setup to start nREPL on port `7002` once Figwheel starts.
+Once you connect to the nREPL, run `(cljs)` to switch to the ClojureScript REPL.
 
-To start an auto-building Node REPL:
+### Building for production
 
-    ./scripts/repl
-
-To get source map support in the Node REPL:
-
-    lein npm install
-
-Clean project specific out:
-
-    lein clean
-
-Build a single release artifact with the following script and then open `index_release.html` in your browser.
-
-    ./scripts/release
+```
+lein clean
+lein package
+```
 
 ## License
 

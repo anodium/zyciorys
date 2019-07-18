@@ -1,9 +1,18 @@
 (ns zyciorys.core
-  (:require [clojure.browser.repl :as repl]))
+    (:require
+      [reagent.core :as r]))
 
-(defonce conn
-  (repl/connect "http://localhost:9000/repl"))
+;; -------------------------
+;; Views
 
-(enable-console-print!)
+(defn home-page []
+  [:div [:h2 "Welcome to Raehduigent"]])
 
-(println "Hello world!")
+;; -------------------------
+;; Initialize app
+
+(defn mount-root []
+  (r/render [home-page] (.getElementById js/document "app")))
+
+(defn init! []
+  (mount-root))
