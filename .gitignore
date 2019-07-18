@@ -4,6 +4,8 @@ pom.xml.asc
 *.class
 /lib/
 /classes/
+/out/
+/release/
 /target/
 /checkouts/
 .lein-deps-sum
@@ -12,3 +14,4 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .cpcache/
+.repl*
