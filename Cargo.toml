@@ -1,0 +1,20 @@
+[package]
+authors = ["Andrea Pascal <andrea@anodium.net>"]
+categories = ["template-engine", "text-processing", "visualization", "wasm"]
+description = "Declarative résumé renderer. Written because I hate typesetting."
+edition = "2018"
+keywords = ["resume", "tex", "latex", "web", "yaml"]
+license = "AGPL-3.0"
+name = "zyciorys"
+readme = "README.md"
+repository = "https://github.com/anodium/zyciorys.git"
+version = "0.1.0"
+
+[dependencies]
+console_error_panic_hook = "0.1.6"
+wasm-bindgen = "0.2.63"
+yaml-rust = "0.4.4"
+yew = "0.16.2"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
