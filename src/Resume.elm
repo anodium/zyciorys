@@ -128,10 +128,13 @@ stringToDate s =
         Err m ->
             Err m
 
+        _ ->
+            Err "Unknown Error"
+
 
 QualitativeDecoder : Decoder (String -> b) -> Decoder b
 QualitativeDecoder a b =
-    -- TODO: Json decoder for Qualitative type
+    -- Fuck.
 
 
 timeToDate : Time -> Date
@@ -167,8 +170,19 @@ decoder =
                                                                     (intToQualitative (required "degree" int))
                                                                     (intToQualitative (required "level" int))
                                                                     (required "reason" string))))))
-        |> required "projects" () -- FIXME: Finish structs
-        |> required "education" ()
+        |> required "projects" (dict (Decode.map3 Project
+                                       (required "description" string)
+                                       (optional "url" string)
+                                       (optional "repo" string)
+                                       (required "skills" (dict (Decode.map3 Skill
+                                                                    (intToQualitative (required "degree" int))
+                                                                    (intToQualitative (required "level" int))
+                                                                    (required "reason" string)))))))
+        |> required "education" (dict (Decode.map4 Credential
+                                        (stringToDate (required "start" string)
+                                        (stringToDate (optional "end" (nullable string)))
+                                        (required "certification" string)
+                                        (optional "grade" (nullable string))))))
 
 
 
