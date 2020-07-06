@@ -1,5 +1,8 @@
 use yew::prelude::*;
-use yaml_rust::{YamlLoader, YamlEmitter};
+use yaml_rust::YamlLoader;
+
+#[path = "resume.rs"]
+mod resume;
 
 pub struct App {}
 
@@ -19,18 +22,12 @@ impl Component for App {
     }
     
     fn view(&self) -> Html {
-        let s: &str = 
-r"foo:
-    - list1
-    - list2
-bar:
-    - 1
-    - 2.0
-";
-        let y = YamlLoader::load_from_str(s).unwrap();
+        let r = resume::get_sample_resume();
 
         html! {
-            <p>{ &y[0]["foo"][0].as_str().unwrap() }</p>
+            <>
+                <p>{ r.name }</p>
+            </>
         }
     }
 
