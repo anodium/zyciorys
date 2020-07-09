@@ -1,5 +1,4 @@
 use yew::prelude::*;
-use yaml_rust::YamlLoader;
 
 #[path = "resume.rs"]
 mod resume;
