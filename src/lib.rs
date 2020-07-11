@@ -1,9 +1,9 @@
 #[path = "app.rs"]
 mod app;
-pub use self::app::*;
+pub(crate) use self::app::*;
 
 #[path = "resume.rs"]
-pub mod resume;
+pub(crate) mod resume;
 
 use wasm_bindgen::prelude::*;
 

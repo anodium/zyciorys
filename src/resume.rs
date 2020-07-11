@@ -13,10 +13,10 @@ pub struct Resume {
     pub reddit: Option<String>,
     pub twitter: Option<String>,
     pub address: Option<String>,
-    pub languages: Vec<Language>,
-    pub experience: Vec<Position>,
-    pub projects: Vec<Project>,
-    pub education: Vec<Credential>,
+    pub languages: Option<Vec<Language>>, // FIXME: These aren't supposed to be Option<T>!
+    pub experience: Option<Vec<Position>>,
+    pub projects: Option<Vec<Project>>,
+    pub education: Option<Vec<Credential>>,
 }
 
 #[derive(Debug, Clone)]
@@ -102,7 +102,7 @@ for more information. The documentation for each field's struct describes valid
 values.
 "]
 pub fn parse(document: Yaml) -> Resume {
-    let langs:Box<[Yaml]> = document["languages"].as_vec().unwrap().into_boxed_slice();
+    let langs:Box<[Yaml]> = document["languages"].as_vec().unwrap().clone().into_boxed_slice();
     let mut langs_repacked:Vec<Language>;
 
     for node in langs.into_iter() {
@@ -113,9 +113,9 @@ pub fn parse(document: Yaml) -> Resume {
         });
     }
 
-    let poss:Box<[Yaml]> = document["experience"].as_vec().unwrap().into_boxed_slice();
+    let poss:Box<[Yaml]> = document["experience"].as_vec().unwrap().clone().into_boxed_slice();
     let mut poss_repacked:Vec<Position>;
-/* TODO: Need date parser
+    // TODO: Need date parser
     for node in poss.into_iter() {
         poss_repacked.push(Position {
             name: String,
@@ -126,8 +126,8 @@ pub fn parse(document: Yaml) -> Resume {
             skills: Vec<Skill>,
         });
     }
-*/
-    let prjs:Box<[Yaml]> = document["projects"].as_vec().unwrap().into_boxed_slice();
+
+    let prjs:Box<[Yaml]> = document["projects"].as_vec().unwrap().clone().into_boxed_slice();
     let mut prjs_repacked:Vec<Project>;
 
     for node in prjs.into_iter() {
@@ -139,9 +139,9 @@ pub fn parse(document: Yaml) -> Resume {
         });
     }
 
-    let creds:Box<[Yaml]> = document["education"].as_vec().unwrap().into_boxed_slice();
+    let creds:Box<[Yaml]> = document["education"].as_vec().unwrap().clone().into_boxed_slice();
     let mut creds_repacked:Vec<Credential>;
-/* TODO: Need date parser
+    // TODO: Need date parser
     for node in poss.into_iter() {
         creds_repacked.push(Credential {
             name: String,
@@ -151,7 +151,8 @@ pub fn parse(document: Yaml) -> Resume {
             grade: Option<String>,
         });
     }
-*/
+
+        // TODO: Finish implementing
     Resume {
         name: document["name"].as_str().unwrap().to_owned(),
         midname: _reown_and_repack(document["midname"].as_str()),
@@ -164,10 +165,10 @@ pub fn parse(document: Yaml) -> Resume {
         reddit: _reown_and_repack(document["reddit"].as_str()),
         twitter: _reown_and_repack(document["twitter"].as_str()),
         address: _reown_and_repack(document["address"].as_str()),
-        languages: langs_repacked,
-        experience: poss_repacked,
-        projects: prjs_repacked,
-        education: creds_repacked
+        languages: None,
+        experience: None,
+        projects: None,
+        education: None
     }
 }
 
@@ -214,83 +215,80 @@ fn _str_to_qualitative(input: &str) -> Qualitative { // TODO: Should I make this
 }
 
 pub fn get_sample_resume() -> Resume {
-    parse(YamlLoader::load_from_str(_get_sample_resume()).unwrap()[0])
+    parse(YamlLoader::load_from_str(SAMPLE_RESUME).unwrap()[0].clone())
 }
 
-fn _get_sample_resume() -> &'static str { // FIXME: Can this be a static constant?
-    r#"%YAML 1.2
-    ---
-    name: Saniyya
-    surname: Dane
-    
-    phone: +11 1111 1111 11
-    email: saniyya@dane.example.com
-    fingerprint: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    website:
-        - https://saniyya.example.net/
-        - https://dane.example.com/
-    address: |
-        1100 TEST DRIVE
-        SUITE #4
-        MINNEAPOLIS, MN 50000
-        UNITED STATES
-    languages:
-        Rust:
-            written: excellent
-            spoken: none
-        Python:
-            written: none
-            spoken: excellent
-    
-    
-    experience:
-        Test Project:
-            start: 2010 January
-            end: 2015 June
-            title: Lead Leader
-            description: >
-                Lorem ipsum dolorum...
-                Multi-line
-                comment.
-                Test1.
-            skills:
-                reasoning:
-                    involvement: low
-                    complexity: moderate
-                    reason: preventing illogical conclusions
-                consistency:
-                    involvement: high
-                    complexity: high
-                    reason: comprehension of static types
-                repetition:
-                    involvement: moderate
-                    complexity: low
-                    reason: no reason no reason no reason no reason no reason no reason
-    
-    projects:
-        example-inator:
-            description: >
-                A device to produce examples with a deadly laser!
-            repo: https://git.example.org/inator.git
-            skills:
-                Internet:
-                    involvement: high
-                    complexity: high
-                    reason: making the black blinky box go
-                LibreOffice:
-                    involvement: low
-                    complexity: high
-                    reason: forgetting to write documentation
-                Test:
-                    involvement: medium
-                    complexity: medium
-                    reason: finding a control case
-    
-    education:
-        Example University:
-            start: 2000 January
-            end: 1999 December
-            certification: Test Certificate
-            grade: It's at least a C+!
-    ...
-    "#}
+pub const SAMPLE_RESUME: &'static str =
+r#"--- !<zyciorys::resume::SAMPLE_RESUME>
+name: Saniyya
+surname: Dane
+
+phone: +11 1111 1111 11
+email: saniyya@dane.example.com
+fingerprint: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+website: https://saniyya.example.net/
+address: |
+    1100 TEST DRIVE
+    SUITE #4
+    MINNEAPOLIS, MN 50000
+    UNITED STATES
+languages:
+    Rust:
+        written: excellent
+        spoken: none
+    Python:
+        written: none
+        spoken: excellent
+
+
+experience:
+    Test Project:
+        start: 2010 January
+        end: 2015 June
+        title: Lead Leader
+        description: >
+            Lorem ipsum dolorum...
+            Multi-line
+            comment.
+            Test1.
+        skills:
+            reasoning:
+                involvement: low
+                complexity: moderate
+                reason: preventing illogical conclusions
+            consistency:
+                involvement: high
+                complexity: high
+                reason: comprehension of static types
+            repetition:
+                involvement: moderate
+                complexity: low
+                reason: no reason no reason no reason no reason no reason no reason
+
+projects:
+    example-inator:
+        description: >
+            A device to produce examples with a deadly laser!
+        repo: https://git.example.org/inator.git
+        skills:
+            Internet:
+                involvement: high
+                complexity: high
+                reason: making the black blinky box go
+            LibreOffice:
+                involvement: low
+                complexity: high
+                reason: forgetting to write documentation
+            Test:
+                involvement: medium
+                complexity: medium
+                reason: finding a control case
+
+education:
+    Example University:
+        start: 2000 January
+        end: 1999 December
+        certification: Test Certificate
+        grade: It's at least a C+!
+...
+"#;

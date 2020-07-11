@@ -1,4 +1,11 @@
 use yew::prelude::*;
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
 
 #[path = "resume.rs"]
 mod resume;
@@ -22,10 +29,13 @@ impl Component for App {
     
     fn view(&self) -> Html {
         let r = resume::get_sample_resume();
+        log(&r.name);
 
         html! {
             <>
                 <p>{ r.name }</p>
+                <p>{ if let Some(s) = r.midname {s} else {"".to_string()} }</p>
+                <p>{ if let Some(s) = r.lastname {s} else {"".to_string()} }</p>
             </>
         }
     }
