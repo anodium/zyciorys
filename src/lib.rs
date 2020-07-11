@@ -1,8 +1,9 @@
 #[path = "app.rs"]
 mod app;
+pub use self::app::*;
 
 #[path = "resume.rs"]
-mod resume;
+pub mod resume;
 
 use wasm_bindgen::prelude::*;
 
