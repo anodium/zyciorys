@@ -1,6 +1,11 @@
 use yaml_rust::{Yaml, YamlLoader};
+use linked_hash_map::LinkedHashMap;
+use datetime::LocalDate as Date;
+use std::str::FromStr;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
+#[doc = ""] // TODO
 pub struct Resume {
     pub name: String,
     pub midname: Option<String>,
@@ -13,12 +18,14 @@ pub struct Resume {
     pub reddit: Option<String>,
     pub twitter: Option<String>,
     pub address: Option<String>,
-    pub languages: Option<Vec<Language>>, // FIXME: These aren't supposed to be Option<T>!
-    pub experience: Option<Vec<Position>>,
-    pub projects: Option<Vec<Project>>,
-    pub education: Option<Vec<Credential>>,
+    pub languages: Vec<Language>,
+    pub experience: Vec<Position>,
+    pub projects: Vec<Project>,
+    pub education: Vec<Credential>,
+    //skills: Vec<&'a Skill>
 }
 
+#[doc = ""] // TODO
 #[derive(Debug, Clone)]
 pub struct Language {
     name: String,
@@ -26,6 +33,7 @@ pub struct Language {
     spoken: Qualitative,
 }
 
+#[doc = ""] // TODO
 #[derive(Debug, Clone)]
 pub struct Position {
     name: String,
@@ -36,6 +44,7 @@ pub struct Position {
     skills: Vec<Skill>,
 }
 
+#[doc = ""] // TODO
 #[derive(Debug, Clone)]
 pub struct Project {
     name: String,
@@ -44,6 +53,7 @@ pub struct Project {
     skills: Vec<Skill>,
 }
 
+#[doc = ""] // TODO
 #[derive(Debug, Clone)]
 pub struct Credential {
     name: String,
@@ -53,13 +63,7 @@ pub struct Credential {
     grade: Option<String>,
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct Date {
-    year: u16,
-    month: u8,
-    day: u8,
-}
-
+#[doc = ""] // TODO
 #[derive(Debug, Clone)]
 pub struct Skill {
     name: String,
@@ -68,6 +72,7 @@ pub struct Skill {
     reason: String,
 }
 
+#[doc = ""] // TODO
 #[derive(Debug, Copy, Clone)]
 pub enum Qualitative {
     VeryLow,
@@ -77,12 +82,12 @@ pub enum Qualitative {
     VeryHigh,
 }
 
+#[doc = ""] // TODO
 pub fn load_from_str(source: &str) -> Result<Resume, &'static str> {
     todo!();
 }
 
-#[doc = "
-Parse a zyciorys Resume from a Yaml document
+#[doc = "Parse a zyciorys Resume from a Yaml document
 
 # Arguments
 
@@ -99,27 +104,27 @@ This function will panic if a required field is missing, or if a field has an
 invalid value. All optional fields are encapsulated within an
 `core::option::Option<T>`. Please refer to the `zyciorys::resume::Resume` struct
 for more information. The documentation for each field's struct describes valid
-values.
-"]
+values."]
 pub fn parse(document: Yaml) -> Resume {
-    let langs:Box<[Yaml]> = document["languages"].as_vec().unwrap().clone().into_boxed_slice();
-    let mut langs_repacked:Vec<Language>;
+    let langs: &LinkedHashMap<Yaml, Yaml> = document["languages"].as_hash().unwrap();
+    let mut langs_repacked: Vec<Language>;
 
-    for node in langs.into_iter() {
+    // let node: Iter<&Yaml, &Yaml>;
+    for node in langs.iter() {
         langs_repacked.push(Language {
-            name: node.as_str().unwrap().to_owned(), // FIXME: Make sure this gets the proper value
-            written: _str_to_qualitative(node["written"].as_str().unwrap()),
-            spoken: _str_to_qualitative(document["spoken"].as_str().unwrap()),
+            name: node.0.as_str().unwrap().into(),
+            written: _str_to_qualitative(node.1.as_hash().unwrap()[&Yaml::from_str("written")].as_str().unwrap()),
+            spoken: _str_to_qualitative(node.1.as_hash().unwrap()[&Yaml::from_str("spoken")].as_str().unwrap()),
         });
     }
 
-    let poss:Box<[Yaml]> = document["experience"].as_vec().unwrap().clone().into_boxed_slice();
-    let mut poss_repacked:Vec<Position>;
-    // TODO: Need date parser
-    for node in poss.into_iter() {
+    let poss: &LinkedHashMap<Yaml, Yaml> = document["experience"].as_hash().unwrap();
+    let mut poss_repacked: Vec<Position>;
+
+    for node in poss.iter() {
         poss_repacked.push(Position {
-            name: String,
-            start: Date,
+            name: node.0.as_str().unwrap().into(),
+            start: Date::from_str(node.1.as_hash().unwrap()[&Yaml::from_str("start")].as_str().unwrap()).unwrap(),
             end: Option<Date>,
             title: String,
             description: Option<String>,
@@ -127,8 +132,8 @@ pub fn parse(document: Yaml) -> Resume {
         });
     }
 
-    let prjs:Box<[Yaml]> = document["projects"].as_vec().unwrap().clone().into_boxed_slice();
-    let mut prjs_repacked:Vec<Project>;
+    let prjs: &LinkedHashMap<Yaml, Yaml> = document["projects"].as_hash().unwrap();
+    let mut prjs_repacked: Vec<Project>;
 
     for node in prjs.into_iter() {
         prjs_repacked.push(Project { // FIXME: Add values from `document`
@@ -139,9 +144,9 @@ pub fn parse(document: Yaml) -> Resume {
         });
     }
 
-    let creds:Box<[Yaml]> = document["education"].as_vec().unwrap().clone().into_boxed_slice();
-    let mut creds_repacked:Vec<Credential>;
-    // TODO: Need date parser
+    let creds: &LinkedHashMap<Yaml, Yaml> = document["education"].as_hash().unwrap();
+    let mut creds_repacked: Vec<Credential>;
+
     for node in poss.into_iter() {
         creds_repacked.push(Credential {
             name: String,
@@ -152,7 +157,7 @@ pub fn parse(document: Yaml) -> Resume {
         });
     }
 
-        // TODO: Finish implementing
+    // TODO: Finish implementing
     Resume {
         name: document["name"].as_str().unwrap().to_owned(),
         midname: _reown_and_repack(document["midname"].as_str()),
@@ -165,7 +170,7 @@ pub fn parse(document: Yaml) -> Resume {
         reddit: _reown_and_repack(document["reddit"].as_str()),
         twitter: _reown_and_repack(document["twitter"].as_str()),
         address: _reown_and_repack(document["address"].as_str()),
-        languages: None,
+        languages: langs_repacked,
         experience: None,
         projects: None,
         education: None
@@ -181,8 +186,7 @@ fn _reown_and_repack(opt: Option<&str>) -> Option<String> {
     }
 }
 
-#[doc = "
-Match a str to a Qualitative
+#[doc = "Match a str to a Qualitative
 
 This function matches all the possible variations of phrasing that's usable
 within a zyciorys document. I don't know what to use so I just picked these
@@ -200,8 +204,7 @@ nightmare later...
 # Panics
 
 This function will panic with `core::unimplemented!` if it can't match a
-descriptor to a `zyciorys::resume::Qualitative`.
-"]
+descriptor to a `zyciorys::resume::Qualitative`."]
 #[inline]
 fn _str_to_qualitative(input: &str) -> Qualitative { // TODO: Should I make this implement Qualitative::into()?
     match input {
@@ -214,10 +217,12 @@ fn _str_to_qualitative(input: &str) -> Qualitative { // TODO: Should I make this
     }
 }
 
+#[doc = ""] // TODO
 pub fn get_sample_resume() -> Resume {
     parse(YamlLoader::load_from_str(SAMPLE_RESUME).unwrap()[0].clone())
 }
 
+#[doc = ""] // TODO
 pub const SAMPLE_RESUME: &'static str =
 r#"--- !<zyciorys::resume::SAMPLE_RESUME>
 name: Saniyya
