@@ -1,14 +1,13 @@
-use yew::prelude::*;
 use wasm_bindgen::prelude::*;
+use yew::prelude::*;
+
+use super::resume::{get_sample_resume/*, parse*/};
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
-
-#[path = "resume.rs"]
-mod resume;
 
 pub struct App {}
 
@@ -28,7 +27,7 @@ impl Component for App {
     }
     
     fn view(&self) -> Html {
-        let r = resume::get_sample_resume();
+        let r = get_sample_resume();
         log(&r.name);
 
         html! {

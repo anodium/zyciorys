@@ -1,9 +1,11 @@
 use yaml_rust::{Yaml, YamlLoader};
 use linked_hash_map::LinkedHashMap;
-use datetime::LocalDate as Date;
-use std::str::FromStr;
-use std::collections::HashMap;
+// FIXME: the `datetime` crate uses libc externs, find no_std replacement!
+//use datetime::LocalDate as Date;
 
+use super::macros;
+
+#[macros::nop]
 #[derive(Debug, Clone)]
 #[doc = ""] // TODO
 pub struct Resume {
@@ -22,7 +24,12 @@ pub struct Resume {
     pub experience: Vec<Position>,
     pub projects: Vec<Project>,
     pub education: Vec<Credential>,
-    //skills: Vec<&'a Skill>
+    //skills: Vec<&'a Skill>,
+}
+
+// TODO: Generation of these needs to be in a macro
+impl Resume {
+    pub const NAME_KEY: Yaml = Yaml::from_str("name");
 }
 
 #[doc = ""] // TODO
@@ -101,7 +108,7 @@ pub fn load_from_str(source: &str) -> Result<Resume, &'static str> {
 # Panics
 
 This function will panic if a required field is missing, or if a field has an
-invalid value. All optional fields are encapsulated within an
+invalid value. All optional fields are encapsulated within a
 `core::option::Option<T>`. Please refer to the `zyciorys::resume::Resume` struct
 for more information. The documentation for each field's struct describes valid
 values."]
@@ -111,10 +118,13 @@ pub fn parse(document: Yaml) -> Resume {
 
     // let node: Iter<&Yaml, &Yaml>;
     for node in langs.iter() {
+        let name: String = node.0.as_str().unwrap().into();
+        let unwrapped_node: &LinkedHashMap<Yaml, Yaml> = node.1.as_hash().unwrap();
+
         langs_repacked.push(Language {
-            name: node.0.as_str().unwrap().into(),
-            written: _str_to_qualitative(node.1.as_hash().unwrap()[&Yaml::from_str("written")].as_str().unwrap()),
-            spoken: _str_to_qualitative(node.1.as_hash().unwrap()[&Yaml::from_str("spoken")].as_str().unwrap()),
+            name: name,
+            written: _str_to_qualitative(unwrapped_node[&Yaml::from_str("written")].as_str().unwrap()),
+            spoken: _str_to_qualitative(unwrapped_node[&Yaml::from_str("spoken")].as_str().unwrap()),
         });
     }
 
@@ -125,9 +135,13 @@ pub fn parse(document: Yaml) -> Resume {
         poss_repacked.push(Position {
             name: node.0.as_str().unwrap().into(),
             start: Date::from_str(node.1.as_hash().unwrap()[&Yaml::from_str("start")].as_str().unwrap()).unwrap(),
-            end: Option<Date>,
-            title: String,
-            description: Option<String>,
+            end: if let Some(v) = node.1.as_hash().unwrap()[&Yaml::from_str("end")].as_str() {
+                Some(Date::from_str(v).unwrap())
+            } else { 
+                None
+            },
+            title: node.1.as_hash().unwrap()[&Yaml::from_str("title")].as_str().unwrap().into(),
+            description: if let Some(v) = Option<String>,
             skills: Vec<Skill>,
         });
     }
@@ -171,9 +185,9 @@ pub fn parse(document: Yaml) -> Resume {
         twitter: _reown_and_repack(document["twitter"].as_str()),
         address: _reown_and_repack(document["address"].as_str()),
         languages: langs_repacked,
-        experience: None,
-        projects: None,
-        education: None
+        experience: todo!(),
+        projects: todo!(),
+        education:todo!()
     }
 }
 
