@@ -1,15 +1,15 @@
 use yaml_rust::{Yaml, YamlLoader};
 use linked_hash_map::LinkedHashMap;
 // FIXME: the `datetime` crate uses libc externs, find no_std replacement!
-//use datetime::LocalDate as Date;
+//pub use datetime::LocalDate as Date;
 
-use super::macros;
+use super::macros::YamlKeyed;
 
-#[macros::nop]
-#[derive(Debug, Clone)]
 #[doc = ""] // TODO
+#[derive(Debug, Clone)]
+#[derive(YamlKeyed)]
 pub struct Resume {
-    pub name: String,
+    #[keyed] pub name: String,
     pub midname: Option<String>,
     pub lastname: Option<String>,
     pub phone: Option<String>,
@@ -200,6 +200,7 @@ fn _reown_and_repack(opt: Option<&str>) -> Option<String> {
     }
 }
 
+#[inline]
 #[doc = "Match a str to a Qualitative
 
 This function matches all the possible variations of phrasing that's usable
@@ -219,7 +220,6 @@ nightmare later...
 
 This function will panic with `core::unimplemented!` if it can't match a
 descriptor to a `zyciorys::resume::Qualitative`."]
-#[inline]
 fn _str_to_qualitative(input: &str) -> Qualitative { // TODO: Should I make this implement Qualitative::into()?
     match input {
         "none" => Qualitative::VeryLow,
