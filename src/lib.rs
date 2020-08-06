@@ -2,12 +2,8 @@
 mod app;
 pub(crate) use self::app::*;
 
-#[path = "resume.rs"]
+#[path = "resume/mod.rs"]
 pub(crate) mod resume;
-
-#[allow(unused_imports)]
-#[no_link]
-pub(crate) use zyciorys_macros as macros;
 
 use wasm_bindgen::prelude::*;
 

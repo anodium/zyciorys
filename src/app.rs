@@ -1,7 +1,7 @@
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 
-use super::resume::{get_sample_resume/*, parse*/};
+use super::resume::*;
 
 #[wasm_bindgen]
 extern "C" {
